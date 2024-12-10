@@ -5,6 +5,10 @@
 
 #include "queue.h"
 
+/* ---------------------- RBTSpecific ----------------------*/
+void bstree_node_to_dot ( const BinarySearchTree * t , void * stream );
+void testrotateleft ( BinarySearchTree * t) ;
+void testrotateright ( BinarySearchTree *t );
 
 /*------------------------  BSTreeType  -----------------------------*/
 typedef enum {red, black} NodeColor;
@@ -13,7 +17,7 @@ struct _bstree {
     BinarySearchTree* left;
     BinarySearchTree* right;
     int key;
-    NodeColor
+    NodeColor color;
 };
 typedef const BinarySearchTree* (*AccessFunction) (const BinarySearchTree*);
 typedef struct {
@@ -37,7 +41,7 @@ BinarySearchTree* bstree_cons(BinarySearchTree* left, BinarySearchTree* right, i
     t->left = left;
     t->right = right;
     t->key = key;
-    t->color = 
+    t->color = red;
 
     if (t->left != NULL)
         t->left->parent = t;
@@ -423,4 +427,32 @@ BSTreeIterator* bstree_iterator_next(BSTreeIterator* i) {
 
 const BinarySearchTree* bstree_iterator_value(const BSTreeIterator* i) {
     return i->current;
+}
+
+/* ---------------------- RBTSpecific ----------------------*/
+void bstree_node_to_dot ( const BinarySearchTree * t , void * stream ){
+    FILE *file = (FILE *) stream;
+
+    printf("%d ", bstree_key(t));
+    const char *color = (t->color == red) ? ", fillcolor=red" : "";
+    fprintf(file, "\tn%d [label=\"{%d|{<left>|<right>}}\"%s];\n", 
+        t->key, t->key, color);
+
+
+    if (bstree_left(t)) {
+        fprintf(file, "\tn%d:left:c -> n%d:n [headclip=false, tailclip=false]\n",
+                bstree_key(t), bstree_key(bstree_left(t)));
+    } else {
+        fprintf(file, "\tlnil%d [style=filled, fillcolor=grey, label=\"NIL\"];\n", bstree_key(t));
+        fprintf(file, "\tn%d:left:c -> lnil%d:n [headclip=false, tailclip=false]\n",
+                bstree_key(t), bstree_key(t));
+    }
+    if (bstree_right(t)) {
+        fprintf(file, "\tn%d:right:c -> n%d:n [headclip=false, tailclip=false]\n",
+                bstree_key(t), bstree_key(bstree_right(t)));
+    } else {
+        fprintf(file, "\trnil%d [style=filled, fillcolor=grey, label=\"NIL\"];\n", bstree_key(t));
+        fprintf(file, "\tn%d:right:c -> rnil%d:n [headclip=false, tailclip=false]\n",
+                bstree_key(t), bstree_key(t));
+    }
 }

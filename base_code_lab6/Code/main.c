@@ -5,7 +5,7 @@
 
 
 /* Define this for solving the exercice 1 - coloring the tree. */
-//#define EXERCICE_1
+#define EXERCICE_1
 /* Define this for solving the exercice 2. - test rotations on nodes */
 //#define EXERCICE_2
 /* Define this for solving the exercice 3. - fix rb property after add*/
