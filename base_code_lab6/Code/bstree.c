@@ -456,3 +456,70 @@ void bstree_node_to_dot ( const BinarySearchTree * t , void * stream ){
                 bstree_key(t), bstree_key(t));
     }
 }
+
+void leftrotate(BinarySearchTree*x){
+    assert(x!=NULL);
+    if (x->right != NULL){
+        // y is the right child of x
+        BinarySearchTree* y = x->right;
+        if (y->left != NULL)
+        {
+            x->right = y->left;
+            y->left->parent = x;
+        }
+        y->left = x;
+        // if x has parent
+        if (x->parent!=NULL)
+        {
+            BinarySearchTree* parent_x = x->parent;
+            if (parent_x->left != NULL && parent_x->left == x)
+            {
+                parent_x->left = y;
+                y->parent = parent_x;
+            }else if (parent_x->right != NULL && parent_x->right == x)
+            {
+                parent_x->right = y;
+                y->parent = parent_x;
+            }
+            
+        }else{
+            x->parent = y;
+            y->parent = NULL;
+        } 
+    }
+    
+}
+
+
+void rightrotate(BinarySearchTree*x){
+    assert(x!= NULL);
+    if (x->left != NULL)
+    {
+        // y is the left child of x
+        BinarySearchTree* y = x->left;
+        if (y->right != NULL){
+            x->left = y->right;
+            y->right->parent = x;
+        }
+        if (x->parent != NULL){
+            BinarySearchTree* parent_x = x->parent;
+            if (parent_x->left != NULL&&parent_x->left == x){
+                parent_x->left = y; 
+            }else if (parent_x->right != NULL&&parent_x->right == x)
+            {
+                parent_x->right = y;
+            }
+            y->parent = parent_x;
+        }else{
+            x->parent = y;
+            y->parent = NULL;
+        }
+    }
+}
+
+void testrotateleft(BinarySearchTree *t){
+    leftrotate(t);
+}
+void testrotateright(BinarySearchTree *t){
+    rightrotate(t);
+}
