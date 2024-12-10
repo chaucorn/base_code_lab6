@@ -1,4 +1,3 @@
-
 #include "bstree.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +8,7 @@
 /* Define this for solving the exercice 2. - test rotations on nodes */
 #define EXERCICE_2
 /* Define this for solving the exercice 3. - fix rb property after add*/
-#define EXERCICE_3
+//#define EXERCICE_3
 /* Define this for solving the exercice 4. - nothing to do, just to verify that search is still operational */
 //#define EXERCICE_4
 /* Define this for solving the exercice 5. - fix rb property after remove */
@@ -200,4 +199,3 @@ int main(int argc, char **argv) {
     fclose(input);
     return 0;
 }
-

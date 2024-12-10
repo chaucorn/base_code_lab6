@@ -9,6 +9,10 @@
 void bstree_node_to_dot ( const BinarySearchTree * t , void * stream );
 void testrotateleft ( BinarySearchTree * t) ;
 void testrotateright ( BinarySearchTree *t );
+BinarySearchTree* grandparent(BinarySearchTree* n);
+BinarySearchTree* uncle(BinarySearchTree* n);
+BinarySearchTree* fixredblack_insert_case1(BinarySearchTree* x);
+BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x);
 
 /*------------------------  BSTreeType  -----------------------------*/
 typedef enum {red, black} NodeColor;
@@ -434,9 +438,13 @@ void bstree_node_to_dot ( const BinarySearchTree * t , void * stream ){
     FILE *file = (FILE *) stream;
 
     printf("%d ", bstree_key(t));
-    const char *color = (t->color == red) ? ", fillcolor=red" : "";
-    fprintf(file, "\tn%d [label=\"{%d|{<left>|<right>}}\"%s];\n", 
-        t->key, t->key, color);
+    const char *color = (t->color == red) ? "fillcolor=red" : "fillcolor=grey";
+    
+    /*
+    fprintf(file, "\tn%d [label=\"{%d|{<left>|<right>}}\"];\n", 
+        t->key, t->key);
+    */
+    fprintf(file, "\tn%d [style=filled, %s, label=\"{%d|{<left>|<right>}}\"];\n", bstree_key(t), color, bstree_key(t));
 
 
     if (bstree_left(t)) {
@@ -490,16 +498,17 @@ void leftrotate(BinarySearchTree*x){
     
 }
 
-
+/*-- Right Rotate : Dans la rotation droite, un nœud devient le fils droit du nœud qui ´etait son fils gauche. --*/
 void rightrotate(BinarySearchTree*x){
     assert(x!= NULL);
+    // If left child exists
     if (x->left != NULL)
     {
         // y is the left child of x
         BinarySearchTree* y = x->left;
         if (y->right != NULL){
             x->left = y->right;
-            y->right->parent = x;
+            y->right = x;
         }
         if (x->parent != NULL){
             BinarySearchTree* parent_x = x->parent;
@@ -522,4 +531,22 @@ void testrotateleft(BinarySearchTree *t){
 }
 void testrotateright(BinarySearchTree *t){
     rightrotate(t);
+}
+
+BinarySearchTree* grandparent(BinarySearchTree* n){
+    return n->parent->parent;
+}
+
+BinarySearchTree* uncle(BinarySearchTree* n){
+    BinarySearchTree* parent = n->parent;
+    BinarySearchTree* grandparent = n->parent->parent;
+    if (grandparent->left!= NULL&&grandparent->left == parent)
+    {
+        return grandparent->right;
+    }else if (grandparent->right!= NULL&&grandparent->right == parent)
+    {
+        return grandparent->left;
+    }
+    return NULL;
+
 }
