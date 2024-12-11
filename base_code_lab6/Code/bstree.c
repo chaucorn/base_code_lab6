@@ -13,6 +13,8 @@ BinarySearchTree* grandparent(BinarySearchTree* n);
 BinarySearchTree* uncle(BinarySearchTree* n);
 BinarySearchTree* fixredblack_insert_case1(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x);
+BinarySearchTree* fixredblack_insert_case2_left(BinarySearchTree* x);
+BinarySearchTree* fixredblack_insert_case2_right(BinarySearchTree* x);
 
 /*------------------------  BSTreeType  -----------------------------*/
 typedef enum {red, black} NodeColor;
@@ -548,5 +550,46 @@ BinarySearchTree* uncle(BinarySearchTree* n){
         return grandparent->left;
     }
     return NULL;
+
+}
+
+BinarySearchTree* fixredblack_insert(BinarySearchTree* x){
+    // if the parent of x is the root of the tree ->color in black
+    if (x->parent->parent == NULL)
+    {
+        x->parent->color = black;
+        return x;
+    }else{
+        if(x->parent->color ==red){
+            return fixredblack_insert_case1(x);
+        }else{
+            return x;
+        }
+    }
+}
+
+BinarySearchTree* fixredblack_insert_case1(BinarySearchTree* x){ // 
+    // If x's uncle is red
+    BinarySearchTree* x_uncle = uncle(x);
+    if (x_uncle != NULL)
+    {
+        BinarySearchTree* x_grandparent = grandparent(x);
+        if (x_uncle->color == red)
+        {
+            // color the parent and the uncle black, grandparent red
+            x->parent->color = black;
+            x_uncle->color = black;
+            x_grandparent->color = red;
+            fixredblack_insert(x_grandparent); 
+        }else{
+            // uncle's color is black
+            return fixredblack_insert_case2(x);
+        }
+    }else{
+        return x;
+    }
+}
+
+BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x){
 
 }
