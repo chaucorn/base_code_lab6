@@ -16,6 +16,7 @@ BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case2_left(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case2_right(BinarySearchTree* x);
 
+
 /*------------------------  BSTreeType  -----------------------------*/
 typedef enum {red, black} NodeColor;
 struct _bstree {
@@ -467,6 +468,8 @@ void bstree_node_to_dot ( const BinarySearchTree * t , void * stream ){
     }
 }
 
+// dans la rotation gauche, un nœud devient le fils gauche du nœud qui  ́etait son fils
+droit. 
 void leftrotate(BinarySearchTree*x){
     assert(x!=NULL);
     if (x->right != NULL){
@@ -591,5 +594,38 @@ BinarySearchTree* fixredblack_insert_case1(BinarySearchTree* x){ //
 }
 
 BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x){
+    // Two case for parent_x
+    //Case 1: parent of x is left child of grandparent
+    BinarySearchTree* parent_x = x->parent;
+    BinarySearchTree* grandparent_x = parent_x->parent;
+    if (grandparent_x->left == parent_x)
+    {
+        return fixredblack_insert_case2_left(x);
+    }
+    //Case 2: parent of x is right child of grandparent
+    else{
+        return fixredblack_insert_case2_right(x);
+    }
+}
 
+BinarySearchTree *fixredblack_insert_case2_left(BinarySearchTree *x){
+    BinarySearchTree* parent_x = x->parent;
+    BinarySearchTree** grandparent_x = parent_x ->parent;
+    // Two cases for x:
+    //Case 1: x is left child of parent
+    if (parent_x->left == x)
+    {
+        rightrotate(grandparent_x);
+        grandparent_x->color = red;
+        parent_x->color = black;
+        return x;
+    }
+    //Case 2: x is right child of parent
+    else{
+        leftrotate(parent_x);
+        rightrotate(grandparent_x);
+        grandparent_x->color = red;
+        parent_x->color = black;
+        return x;
+    }
 }
