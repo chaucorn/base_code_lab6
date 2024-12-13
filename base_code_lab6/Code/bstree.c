@@ -94,18 +94,31 @@ BinarySearchTree* bstree_parent(const BinarySearchTree* t) {
 /*------------------------  BSTreeDictionary  -----------------------------*/
 
 /* Obligation de passer l'arbre par référence pour pouvoir le modifier */
-void bstree_add(ptrBinarySearchTree* t, int v) {
-	if (*t == NULL){
+
+void bstree_add(ptrBinarySearchTree* t, int v){
+    if (*t == NULL){
         *t = bstree_cons(NULL, NULL, v);
-    }else{
-        BinarySearchTree* bn_tree = *t;
-        if (v > bn_tree->key){
-            bstree_add(&bn_tree->right, v);
-            bn_tree->right->parent = *t;
+        return;
+    }
+    
+    BinarySearchTree* current_node = *t;
+    BinarySearchTree* current_parent = NULL;
+    while (current_node!= NULL){
+        current_parent = current_node;
+        if (v < current_node->key){
+            current_node = current_node->left;
+        }else if (v > current_node->key){
+            current_node = current_node ->right;
         }else{
-            bstree_add(&bn_tree->left, v);
-            bn_tree->left->parent = *t;
-        } 
+            return;
+        }
+    }
+    BinarySearchTree* new_node = bstree_cons(NULL, NULL, v);
+    new_node->parent = current_parent;
+    if (v < current_parent->key){
+        current_parent->left = new_node;
+    }else{
+        current_parent->right = new_node;
     }
 }
 
@@ -468,8 +481,7 @@ void bstree_node_to_dot ( const BinarySearchTree * t , void * stream ){
     }
 }
 
-// dans la rotation gauche, un nœud devient le fils gauche du nœud qui  ́etait son fils
-droit. 
+// dans la rotation gauche, un nœud devient le fils gauche du nœud qui  ́etait son fils droit. 
 void leftrotate(BinarySearchTree*x){
     assert(x!=NULL);
     if (x->right != NULL){
@@ -494,7 +506,7 @@ void leftrotate(BinarySearchTree*x){
                 parent_x->right = y;
                 y->parent = parent_x;
             }
-            
+            x->parent = y;
         }else{
             x->parent = y;
             y->parent = NULL;
@@ -513,17 +525,20 @@ void rightrotate(BinarySearchTree*x){
         BinarySearchTree* y = x->left;
         if (y->right != NULL){
             x->left = y->right;
+            y->right->parent = x;
             y->right = x;
         }
         if (x->parent != NULL){
             BinarySearchTree* parent_x = x->parent;
             if (parent_x->left != NULL&&parent_x->left == x){
                 parent_x->left = y; 
+                y->parent = parent_x;
             }else if (parent_x->right != NULL&&parent_x->right == x)
             {
                 parent_x->right = y;
+                y->parent = parent_x;
             }
-            y->parent = parent_x;
+            x->parent = y;
         }else{
             x->parent = y;
             y->parent = NULL;
@@ -537,7 +552,7 @@ void testrotateleft(BinarySearchTree *t){
 void testrotateright(BinarySearchTree *t){
     rightrotate(t);
 }
-
+/*
 BinarySearchTree* grandparent(BinarySearchTree* n){
     return n->parent->parent;
 }
@@ -629,3 +644,4 @@ BinarySearchTree *fixredblack_insert_case2_left(BinarySearchTree *x){
         return x;
     }
 }
+*/
