@@ -97,12 +97,12 @@ BinarySearchTree* bstree_parent(const BinarySearchTree* t) {
 /* Obligation de passer l'arbre par référence pour pouvoir le modifier */
 
 void bstree_add(ptrBinarySearchTree* t, int v){
-    printf("\tadding %i\n", v);
+    //printf("\tadding %i\n", v);
 
     if (*t == NULL){
         *t = bstree_cons(NULL, NULL, v);
         *t = fixredblack_insert(*t);
-        printf("\t\tadded %i\n", v);
+        //printf("\tadded %i\n", v);
         return;
     }
 
@@ -118,17 +118,19 @@ void bstree_add(ptrBinarySearchTree* t, int v){
             return;
         }
     }
+
     BinarySearchTree* new_node = bstree_cons(NULL, NULL, v);
+    //printf("new node = %i , parent = %i\n", new_node->key, current_parent->key);
     new_node->parent = current_parent;
     if (v < current_parent->key){
         current_parent->left = new_node;
     }else{
         current_parent->right = new_node;
     }
-    printf("\t\tadded %i\n", v);
+    //printf("\t\tadded %i\n", v);
 
     BinarySearchTree* stop = fixredblack_insert(new_node);
-    printf("stop = %i\n", stop->key);
+    //printf("stop = %i\n", stop->key);
     while (stop->parent != NULL)
     {
         stop = stop->parent;
@@ -353,7 +355,7 @@ void bstree_depth_infix(const BinarySearchTree* t, OperateFunctor f, void* envir
         printf("t right =  %i ", t->right->key);
         bstree_depth_infix(t->left, f, environment);
         f(t, environment);
-        
+
         bstree_depth_infix(t->right, f, environment);
 
     }
@@ -404,10 +406,10 @@ void bstree_iterative_depth_infix(const BinarySearchTree* t, OperateFunctor f, v
             prev = current; next = current->parent;
         }
         current = next;
-        
-        
+
+
     }
-    
+
 }
 
 /*------------------------  BSTreeIterator  -----------------------------*/
@@ -566,7 +568,7 @@ void rightrotate(BinarySearchTree*x){
          x->left = y->right;
         if (y->right != NULL){
             y->right->parent = x;
-            
+
         }
         y->right = x;
         if (x->parent != NULL){
@@ -617,14 +619,14 @@ BinarySearchTree* fixredblack_insert(BinarySearchTree* x){
     if (x->parent == NULL)
     {
         x->color = black;
-        printf("%i is the root -> color black\n", x->key);
+        //printf("%i is the root -> color black\n", x->key);
         return x;
     }else{
         if(x->parent->color ==red){
-            printf("\tParent is red, need recolor\n");
+            //printf("\tParent is red, need recolor\n");
             return fixredblack_insert_case1(x);
         }else{
-            printf("\tNo need recoloring\n");
+            //printf("\tNo need recoloring\n");
             return x;
         }
     }
@@ -661,12 +663,12 @@ BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x){
     BinarySearchTree* grandparent_x = parent_x->parent;
     if (grandparent_x->left == parent_x)
     {
-        printf("\tCase2 uncle is black; p is left pp \n");
+        //printf("\tCase2 uncle is black; p is left pp \n");
         return fixredblack_insert_case2_left(x);
     }
     //Case 2: parent of x is right child of grandparent
     else{
-        printf("\tCase2 uncle is black; p is right pp \n");
+        //printf("\tCase2 uncle is black; p is right pp \n");
         return fixredblack_insert_case2_right(x);
     }
 }

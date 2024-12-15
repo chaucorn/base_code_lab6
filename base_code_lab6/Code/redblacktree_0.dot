@@ -1,0 +1,87 @@
+digraph RedBlackTree {
+	graph [ranksep=0.5];
+	node [shape = record];
+
+	n1 [style=filled, fillcolor=red, label="{1|{<left>|<right>}}"];
+	lnil1 [style=filled, fillcolor=grey, label="NIL"];
+	n1:left:c -> lnil1:n [headclip=false, tailclip=false]
+	rnil1 [style=filled, fillcolor=grey, label="NIL"];
+	n1:right:c -> rnil1:n [headclip=false, tailclip=false]
+	n2 [style=filled, fillcolor=grey, label="{2|{<left>|<right>}}"];
+	n2:left:c -> n1:n [headclip=false, tailclip=false]
+	rnil2 [style=filled, fillcolor=grey, label="NIL"];
+	n2:right:c -> rnil2:n [headclip=false, tailclip=false]
+	n3 [style=filled, fillcolor=red, label="{3|{<left>|<right>}}"];
+	n3:left:c -> n2:n [headclip=false, tailclip=false]
+	n3:right:c -> n5:n [headclip=false, tailclip=false]
+	n4 [style=filled, fillcolor=red, label="{4|{<left>|<right>}}"];
+	lnil4 [style=filled, fillcolor=grey, label="NIL"];
+	n4:left:c -> lnil4:n [headclip=false, tailclip=false]
+	rnil4 [style=filled, fillcolor=grey, label="NIL"];
+	n4:right:c -> rnil4:n [headclip=false, tailclip=false]
+	n5 [style=filled, fillcolor=grey, label="{5|{<left>|<right>}}"];
+	n5:left:c -> n4:n [headclip=false, tailclip=false]
+	n5:right:c -> n6:n [headclip=false, tailclip=false]
+	n6 [style=filled, fillcolor=red, label="{6|{<left>|<right>}}"];
+	lnil6 [style=filled, fillcolor=grey, label="NIL"];
+	n6:left:c -> lnil6:n [headclip=false, tailclip=false]
+	rnil6 [style=filled, fillcolor=grey, label="NIL"];
+	n6:right:c -> rnil6:n [headclip=false, tailclip=false]
+	n7 [style=filled, fillcolor=grey, label="{7|{<left>|<right>}}"];
+	n7:left:c -> n3:n [headclip=false, tailclip=false]
+	n7:right:c -> n11:n [headclip=false, tailclip=false]
+	n8 [style=filled, fillcolor=red, label="{8|{<left>|<right>}}"];
+	lnil8 [style=filled, fillcolor=grey, label="NIL"];
+	n8:left:c -> lnil8:n [headclip=false, tailclip=false]
+	rnil8 [style=filled, fillcolor=grey, label="NIL"];
+	n8:right:c -> rnil8:n [headclip=false, tailclip=false]
+	n9 [style=filled, fillcolor=grey, label="{9|{<left>|<right>}}"];
+	n9:left:c -> n8:n [headclip=false, tailclip=false]
+	n9:right:c -> n10:n [headclip=false, tailclip=false]
+	n10 [style=filled, fillcolor=red, label="{10|{<left>|<right>}}"];
+	lnil10 [style=filled, fillcolor=grey, label="NIL"];
+	n10:left:c -> lnil10:n [headclip=false, tailclip=false]
+	rnil10 [style=filled, fillcolor=grey, label="NIL"];
+	n10:right:c -> rnil10:n [headclip=false, tailclip=false]
+	n11 [style=filled, fillcolor=red, label="{11|{<left>|<right>}}"];
+	n11:left:c -> n9:n [headclip=false, tailclip=false]
+	n11:right:c -> n13:n [headclip=false, tailclip=false]
+	n12 [style=filled, fillcolor=red, label="{12|{<left>|<right>}}"];
+	lnil12 [style=filled, fillcolor=grey, label="NIL"];
+	n12:left:c -> lnil12:n [headclip=false, tailclip=false]
+	rnil12 [style=filled, fillcolor=grey, label="NIL"];
+	n12:right:c -> rnil12:n [headclip=false, tailclip=false]
+	n13 [style=filled, fillcolor=grey, label="{13|{<left>|<right>}}"];
+	n13:left:c -> n12:n [headclip=false, tailclip=false]
+	rnil13 [style=filled, fillcolor=grey, label="NIL"];
+	n13:right:c -> rnil13:n [headclip=false, tailclip=false]
+	n14 [style=filled, fillcolor=grey, label="{14|{<left>|<right>}}"];
+	n14:left:c -> n7:n [headclip=false, tailclip=false]
+	n14:right:c -> n19:n [headclip=false, tailclip=false]
+	n15 [style=filled, fillcolor=red, label="{15|{<left>|<right>}}"];
+	lnil15 [style=filled, fillcolor=grey, label="NIL"];
+	n15:left:c -> lnil15:n [headclip=false, tailclip=false]
+	rnil15 [style=filled, fillcolor=grey, label="NIL"];
+	n15:right:c -> rnil15:n [headclip=false, tailclip=false]
+	n16 [style=filled, fillcolor=grey, label="{16|{<left>|<right>}}"];
+	n16:left:c -> n15:n [headclip=false, tailclip=false]
+	rnil16 [style=filled, fillcolor=grey, label="NIL"];
+	n16:right:c -> rnil16:n [headclip=false, tailclip=false]
+	n17 [style=filled, fillcolor=red, label="{17|{<left>|<right>}}"];
+	n17:left:c -> n16:n [headclip=false, tailclip=false]
+	n17:right:c -> n18:n [headclip=false, tailclip=false]
+	n18 [style=filled, fillcolor=grey, label="{18|{<left>|<right>}}"];
+	lnil18 [style=filled, fillcolor=grey, label="NIL"];
+	n18:left:c -> lnil18:n [headclip=false, tailclip=false]
+	rnil18 [style=filled, fillcolor=grey, label="NIL"];
+	n18:right:c -> rnil18:n [headclip=false, tailclip=false]
+	n19 [style=filled, fillcolor=grey, label="{19|{<left>|<right>}}"];
+	n19:left:c -> n17:n [headclip=false, tailclip=false]
+	n19:right:c -> n20:n [headclip=false, tailclip=false]
+	n20 [style=filled, fillcolor=grey, label="{20|{<left>|<right>}}"];
+	lnil20 [style=filled, fillcolor=grey, label="NIL"];
+	n20:left:c -> lnil20:n [headclip=false, tailclip=false]
+	rnil20 [style=filled, fillcolor=grey, label="NIL"];
+	n20:right:c -> rnil20:n [headclip=false, tailclip=false]
+
+}
