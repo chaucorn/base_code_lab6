@@ -11,13 +11,26 @@ void testrotateleft ( BinarySearchTree * t) ;
 void testrotateright ( BinarySearchTree *t );
 BinarySearchTree* grandparent(BinarySearchTree* n);
 BinarySearchTree* uncle(BinarySearchTree* n);
+BinarySearchTree* brother(BinarySearchTree* n);
 BinarySearchTree* fixredblack_insert(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case1(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case2_left(BinarySearchTree* x);
 BinarySearchTree* fixredblack_insert_case2_right(BinarySearchTree* x);
+void leftrotate(BinarySearchTree*x);
+void rightrotate(BinarySearchTree*x);
+
+ptrBinarySearchTree fixredblack_remove(ptrBinarySearchTree p, ptrBinarySearchTree x);
 
 
+BinarySearchTree*  fixredblack_remove_case1(BinarySearchTree* p, BinarySearchTree* x);
+BinarySearchTree*  fixredblack_remove_case2(BinarySearchTree* p, BinarySearchTree* x);
+
+//le nœud “double-noir” supprim´e est le fils gauche de son p`ere p.
+BinarySearchTree* fixredblack_remove_case1_left(BinarySearchTree* p, BinarySearchTree* x);
+BinarySearchTree* fixredblack_remove_case1_right(BinarySearchTree* p, BinarySearchTree* x);
+BinarySearchTree* fixredblack_remove_case2_left(BinarySearchTree* p, BinarySearchTree* x);
+BinarySearchTree* fixredblack_remove_case2_right(BinarySearchTree* p, BinarySearchTree* x);
 /*------------------------  BSTreeType  -----------------------------*/
 typedef enum {red, black} NodeColor;
 struct _bstree {
@@ -97,12 +110,9 @@ BinarySearchTree* bstree_parent(const BinarySearchTree* t) {
 /* Obligation de passer l'arbre par référence pour pouvoir le modifier */
 
 void bstree_add(ptrBinarySearchTree* t, int v){
-    //printf("\tadding %i\n", v);
-
     if (*t == NULL){
         *t = bstree_cons(NULL, NULL, v);
         *t = fixredblack_insert(*t);
-        //printf("\tadded %i\n", v);
         return;
     }
 
@@ -120,26 +130,19 @@ void bstree_add(ptrBinarySearchTree* t, int v){
     }
 
     BinarySearchTree* new_node = bstree_cons(NULL, NULL, v);
-    //printf("new node = %i , parent = %i\n", new_node->key, current_parent->key);
     new_node->parent = current_parent;
     if (v < current_parent->key){
         current_parent->left = new_node;
     }else{
         current_parent->right = new_node;
     }
-    //printf("\t\tadded %i\n", v);
 
     BinarySearchTree* stop = fixredblack_insert(new_node);
-    //printf("stop = %i\n", stop->key);
     while (stop->parent != NULL)
     {
         stop = stop->parent;
     }
     *t = stop;
-
-
-
-
 }
 
 const BinarySearchTree* bstree_search(const BinarySearchTree* t, int v) {
@@ -185,12 +188,9 @@ const BinarySearchTree* accessLeft(const BinarySearchTree* x){
         while (predecessor_child->right != NULL){
             predecessor_child = predecessor_child->right;
         }
-
     }
     return predecessor_child;
-
 }
-
 
 const BinarySearchTree* accessRight(const BinarySearchTree* x){
     const BinarySearchTree* successor_child =  NULL;
@@ -199,17 +199,14 @@ const BinarySearchTree* accessRight(const BinarySearchTree* x){
         while (successor_child->left != NULL){
             successor_child = successor_child->left;
         }
-
     }
     return successor_child;
-
 }
 
 
 const BinarySearchTree* find_next(const BinarySearchTree* x, AccessFunction access){
     const BinarySearchTree* next_node=  access(x);
     return next_node;
-
 }
 
 const BinarySearchTree* bstree_successor(const BinarySearchTree* x) {
@@ -232,7 +229,6 @@ const BinarySearchTree* bstree_successor(const BinarySearchTree* x) {
     return smaller_node(successor_lower, successor_upper);
 }
 
-
 const BinarySearchTree* bstree_predecessor(const BinarySearchTree* x) {
     assert(!bstree_empty(x));
     // Find upper predecessor
@@ -249,7 +245,6 @@ const BinarySearchTree* bstree_predecessor(const BinarySearchTree* x) {
         if (parent->right!=NULL&&parent->right == x){
             predecessor_upper = parent;
         }
-
     }
     // Find lower predecessor on the left
     ChildAccessor accessor = {.left = accessLeft, .right = accessRight};
@@ -257,43 +252,32 @@ const BinarySearchTree* bstree_predecessor(const BinarySearchTree* x) {
     return bigger_node(predecessor_lower, predecessor_upper);
 }
 
-//void bstree_swap_nodes(ptrBinarySearchTree* tree, ptrBinarySearchTree from, ptrBinarySearchTree to)
 void bstree_swap_nodes(ptrBinarySearchTree from, ptrBinarySearchTree to) {
     assert(!bstree_empty(*tree) && !bstree_empty(from) && !bstree_empty(to));
     int value_from = from->key;
     int value_to = to->key;
-    from->key = value_to;
-    to->key = value_from;
+    from->key = value_to; to->key = value_from;
 }
 
-// t -> the tree to remove from, current -> the node to remove
-//void bstree_remove_node(ptrBinarySearchTree* t, ptrBinarySearchTree current)
-void bstree_remove_node(ptrBinarySearchTree current) {
-    // Cas 1 node has no child
-    if (current->left == NULL&& current->right == NULL)
-    {
-        if (current->parent != NULL)
-        {
+
+
+void bstree_remove_node( ptrBinarySearchTree current) {
+    // Finding the node
+    // Cas 1 node has no child => remove, regardless of colors, no need to fix
+    BinarySearchTree* substitute = NULL;
+    if (current->left == NULL&& current->right == NULL){
+        if (current->parent != NULL){
             BinarySearchTree* parent = current->parent;
             parent->left = (parent->left == current)?  NULL : parent->left ;
             parent->right = (parent->right == current)? NULL :parent->right ;
         }
         free(current);
     }
-    // Case 2: Node has two children
-    else if (current->left != NULL&& current->right != NULL) {
-        // Cast const type to node
-        const BinarySearchTree* current_const = (const BinarySearchTree*) current;
-        // Find successor
-        BinarySearchTree* successor = (BinarySearchTree*) bstree_successor(current_const);
-        bstree_swap_nodes(current, successor);
-        bstree_remove_node(successor);
 
-    }
-    // Case 3: only left child
+    // Case 2: only left child
     else if (current->left != NULL && current->right == NULL){
-        if (current->parent != NULL)
-        {
+        //1. Binding
+        if (current->parent != NULL){
             BinarySearchTree* parent = current->parent;
             parent->left = (parent->left == current)?  current->left : parent->left ;
             parent->right = (parent->right == current)? current->left :parent->right ;
@@ -301,11 +285,24 @@ void bstree_remove_node(ptrBinarySearchTree current) {
         }else{
             current->left->parent = NULL;
         }
-        free(current);
 
+        // 2. Recoloring
+        if (current->color == black){
+            if (current->left->color == red){
+                current->left->color = black;
+                free(current);
+            }else{
+                substitute = current->left;
+                free(current);
+                substitute = fixredblack_remove(substitute->parent, substitute);
+            }
+        }else{
+            free(current);
+        }
     }
-    // Case 4 only right child
+    // Case 3 only right child
     else if (current->right != NULL && current->left == NULL) {
+        // 1. Binding
         if (current->parent != NULL)
         {
             BinarySearchTree* parent = current->parent;
@@ -315,9 +312,31 @@ void bstree_remove_node(ptrBinarySearchTree current) {
         }else{
             current->right->parent = NULL;
         }
-        free(current);
+        // 2. Recoloring
+        if (current->color == black){
+            if (current->right->color == red){
+                current->right->color = black;
+                free(current);
+            }else{
+                substitute = current->right;
+                free(current);
+                substitute = fixredblack_remove(substitute->parent, substitute);
+            }
+        }else{
+            free(current);
+        }
+    }
+    // Case 4: Node has two children
+    else if (current->left != NULL&& current->right != NULL) {
+        // Cast const type to node
+        const BinarySearchTree* current_const = (const BinarySearchTree*) current;
+        // Find successor
+        BinarySearchTree* successor = (BinarySearchTree*) bstree_successor(current_const);
+        bstree_swap_nodes(current, successor);
+        bstree_remove_node(successor);
     }
 }
+
 
 void bstree_remove(ptrBinarySearchTree* t, int v) {
     assert (!bstree_empty(*t));
@@ -325,17 +344,217 @@ void bstree_remove(ptrBinarySearchTree* t, int v) {
     const ptrBinarySearchTree node = (const ptrBinarySearchTree) bstree_search(tree, v) ;
     if (node != NULL){
         ptrBinarySearchTree to_remove = (ptrBinarySearchTree) node;
-        bstree_remove_node(to_remove);
+        bstree_remove_node( to_remove);
+    }
+}
+
+
+/* --------- Functions to identify children of a node ------*/
+
+bool both_children_are_black(BinarySearchTree* x){
+
+    if (x->right!=NULL && x->right ->color == black && x->left!=NULL && x->left ->color == black){
+        return true;
+    }
+    if (x->left!=NULL && x->left ->color == black && x->right == NULL){
+        return true;
+    }
+    if (x->right!=NULL && x->right ->color == black && x->left == NULL){
+        return true;
+    }
+    if (x->left == NULL && x->right == NULL){
+        return true;
+    }
+    return false;
+}
+
+bool both_children_are_red(BinarySearchTree* x){
+    return(x->left != NULL && x->left == red && x->right != NULL && x->right == red);
+}
+
+bool left_is_black_right_is_red(BinarySearchTree*x){
+    bool left_is_black = (x->left == NULL || x->left->color == black);
+    bool right_is_red = (x->right != NULL && x->right->color ==red);
+    return (left_is_black && right_is_red);
+}
+
+bool left_is_red_right_is_black(BinarySearchTree*x){
+    bool left_is_red = (x->left != NULL && x->left->color ==red);
+    bool right_is_black = (x->right == NULL || x->right->color == black);
+    return (right_is_black && left_is_red);
+}
+/*-----------------------------------------------------------------*/
+
+/*------Fix Black Remove functions-------*/
+
+ptrBinarySearchTree fixredblack_remove(ptrBinarySearchTree p, ptrBinarySearchTree x){
+    if (p == NULL)
+    {
+        x->color = black;
+        return x;
+    }else{
+        BinarySearchTree* brother_x = brother(x);
+        if (brother_x->color == black || brother_x == NULL){
+            return fixredblack_remove_case1(p,x);
+        }
+        else{
+            return fixredblack_remove_case2(p,x);
+        }
+    }
+}
+
+// Case 1: Brother of x is black, x is the substitute node
+BinarySearchTree* fixredblack_remove_case1(BinarySearchTree* p, BinarySearchTree* x){
+    // Case 1.1 : x is the left child of its parent
+    if (p->left != NULL && p->left == x){
+        return fixredblack_remove_case1_left(p, x);
+    }
+    // Case 1.2 : x is the right child of its parent
+    else{
+        return fixredblack_remove_case1_right(p, x);
+    }
+}
+
+// Case 1.1 : brother is black, x is the left child of its parent
+BinarySearchTree* fixredblack_remove_case1_left(BinarySearchTree* p, BinarySearchTree* x){
+    if (p->color == black){
+        // if x has no brother, rerun the algo to an upper node level
+        if (brother(x) == NULL){
+            return fixredblack_remove(p->parent, p);
+        }else{
+            // 3 cases for the two children
+            // Case 1: both are black
+            BinarySearchTree* brother_x = brother(x);
+            if (both_children_are_black(brother_x)){
+                brother_x->color = red;
+                return x;
+            }
+            // Case 2: right is red, left is black
+            else if (left_is_black_right_is_red(brother_x)){
+                BinarySearchTree* brother_right = brother_x->right;
+                leftrotate(p);
+                brother_right->color = black;
+                return x;
+            }
+            // Case 3: right is black, left is red
+            else if (left_is_red_right_is_black(brother_x)){
+                BinarySearchTree* brother_left = brother_x->left;
+                rightrotate(brother_x);
+                leftrotate(p);
+                brother_left->color = black;
+                return x;
+            }
+            // Case 4: both are red
+            else{
+                BinarySearchTree* brother_right = brother_x->right;
+                leftrotate(p);
+                brother_right->color = black;
+                return x;
+            }
+        }
+    }
+    // if p is red
+    else{
+        if (brother(x)!= NULL){
+            brother(x)->color = red;
+        }
+        p->color = black;
+        return x;
+    }
+}
+
+// Case 1.2: brother is black, x is the right child of its parent
+BinarySearchTree* fixredblack_remove_case1_right(BinarySearchTree* p, BinarySearchTree* x){
+    // p is black
+    if (p->color == black){
+        if (brother(x) == NULL){
+            return fixredblack_remove(p->parent, p);
+        }
+        else{
+            // 3 cases for the two children
+            // Case 1: both are black
+            BinarySearchTree* brother_x = brother(x);
+            if (both_children_are_black(x)){
+                brother_x->color = red;
+                return x;
+            }
+            // Case 2: left is black right is red
+            else if (left_is_black_right_is_red(brother_x)){
+                BinarySearchTree* brother_right = brother_x->right;
+                leftrotate(brother_x);
+                rightrotate(p);
+                brother_right->color = black;
+                return x;
+            }
+            // Case 3: left is red right is black
+            else if (left_is_red_right_is_black(brother_x)){
+                BinarySearchTree* brother_left = brother_x->left;
+                rightrotate(p);
+                brother_left->color = black;
+                return x;
+            }
+            // Case 4: both are red
+            else{
+                BinarySearchTree* brother_left = brother_x->left;
+                rightrotate(p);
+                brother_left->color = black;
+                return x;
+            }
+        }
+    }
+    // p is red
+    else{
+        if (brother(x)!= NULL){
+            brother(x)->color = red;
+        }
+        p->color = black;
+        return x;
     }
 
 }
+
+// Case 2: Brother of x is red, x is the substitute node
+BinarySearchTree* fixredblack_remove_case2(BinarySearchTree* p, BinarySearchTree* x){
+    // Case 2.1 : x is the left child of its parent
+    if (p->left != NULL && p->left == x){
+        return fixredblack_remove_case2_left(p, x);
+    }
+    // Case 2.2 : x is the right child of its parent
+    else{
+        return fixredblack_remove_case2_right(p, x);
+    }
+}
+
+// Case 2.1 : Brother of x is red, x is the left child of its parent
+BinarySearchTree* fixredblack_remove_case2_left(BinarySearchTree*p, BinarySearchTree* x){
+    BinarySearchTree* brother_x = p->right;
+    if (brother_x->left != NULL)
+    {
+        brother_x->left->color = red;
+    }
+    leftrotate(p);
+    brother_x->color = black;
+    return x;
+}
+
+// Case 2.1 : Brother of x is red, x is the right child of its parent
+BinarySearchTree* fixredblack_remove_case2_right(BinarySearchTree*p, BinarySearchTree* x){
+    BinarySearchTree* brother_x = p->left;
+    if (brother_x->right != NULL)
+    {
+        brother_x->right->color = red;
+    }
+    rightrotate(p);
+    brother_x->color = black;
+    return x;
+}
+/*-----------------------------------------------------------------*/
 
 /*------------------------  BSTreeVisitors  -----------------------------*/
 
 void bstree_depth_prefix(const BinarySearchTree* t, OperateFunctor f, void* environment) {
     if (t!=NULL)
     {
-        //printf("%i ", t->key);
         f(t, environment);
         bstree_depth_prefix(t->left, f, environment);
         bstree_depth_prefix(t->right, f, environment);
@@ -367,7 +586,6 @@ void bstree_depth_postfix(const BinarySearchTree* t, OperateFunctor f, void* env
         bstree_depth_postfix(t->left, f, environment);
         bstree_depth_postfix(t->right, f, environment);
         f(t, environment);
-        //printf("%i ", t->key);
     }
 
 }
@@ -406,10 +624,7 @@ void bstree_iterative_depth_infix(const BinarySearchTree* t, OperateFunctor f, v
             prev = current; next = current->parent;
         }
         current = next;
-
-
     }
-
 }
 
 /*------------------------  BSTreeIterator  -----------------------------*/
@@ -499,10 +714,6 @@ void bstree_node_to_dot ( const BinarySearchTree * t , void * stream ){
     printf("%d ", bstree_key(t));
     const char *color = (t->color == red) ? "fillcolor=red" : "fillcolor=grey";
 
-    /*
-    fprintf(file, "\tn%d [label=\"{%d|{<left>|<right>}}\"];\n",
-        t->key, t->key);
-    */
     fprintf(file, "\tn%d [style=filled, %s, label=\"{%d|{<left>|<right>}}\"];\n", bstree_key(t), color, bstree_key(t));
 
 
@@ -596,6 +807,8 @@ void testrotateright(BinarySearchTree *t){
     rightrotate(t);
 }
 
+
+/*-----Find family member-----*/
 BinarySearchTree* grandparent(BinarySearchTree* n){
     return n->parent->parent;
 }
@@ -614,19 +827,32 @@ BinarySearchTree* uncle(BinarySearchTree* n){
 
 }
 
+BinarySearchTree* brother(BinarySearchTree* n){
+    assert(n->parent!=NULL);
+    BinarySearchTree* parent = n->parent;
+    if (parent->right != NULL && parent->right == n)
+    {
+        return parent->left;
+    }else{
+        return parent->right;
+    }
+
+}
+
+
+/*------------------------------------*/
+
+
 BinarySearchTree* fixredblack_insert(BinarySearchTree* x){
     // if the parent of x is the root of the tree ->color in black
     if (x->parent == NULL)
     {
         x->color = black;
-        //printf("%i is the root -> color black\n", x->key);
         return x;
     }else{
         if(x->parent->color ==red){
-            //printf("\tParent is red, need recolor\n");
             return fixredblack_insert_case1(x);
         }else{
-            //printf("\tNo need recoloring\n");
             return x;
         }
     }
@@ -663,12 +889,10 @@ BinarySearchTree* fixredblack_insert_case2(BinarySearchTree* x){
     BinarySearchTree* grandparent_x = parent_x->parent;
     if (grandparent_x->left == parent_x)
     {
-        //printf("\tCase2 uncle is black; p is left pp \n");
         return fixredblack_insert_case2_left(x);
     }
     //Case 2: parent of x is right child of grandparent
     else{
-        //printf("\tCase2 uncle is black; p is right pp \n");
         return fixredblack_insert_case2_right(x);
     }
 }
